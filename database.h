@@ -6,13 +6,12 @@
 #define MUSICDB_DATABASE_H
 
 typedef struct {
-    unsigned int id;
     char title[64];
     char author[64];
     char genre[64];
+    unsigned int id;
     unsigned int year;
     unsigned int duration_sec;
-    char album[64];
 } Song_t;
 
 typedef struct {
