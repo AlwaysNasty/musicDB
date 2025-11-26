@@ -10,5 +10,6 @@ int main() {
     init_database(&db);
 
 
+    free_database(&db);
     return 0;
 }
