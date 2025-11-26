@@ -5,6 +5,8 @@
 #ifndef MUSICDB_DATABASE_H
 #define MUSICDB_DATABASE_H
 
+#include <stdio.h>
+
 typedef struct {
     char title[64];
     char author[64];
@@ -27,7 +29,8 @@ void ensure_capacity(MusicDatabase* db);
 
 void add_song(MusicDatabase* db, Song_t song);
 void delete_song(MusicDatabase* db, unsigned int id);
-void edit_song(const MusicDatabase* db, unsigned int id);
+void input_string(char* buf, size_t size);
+void edit_song(MusicDatabase* db, unsigned int id);
 
 void print_song(const Song_t* song);
 void print_all(const MusicDatabase* db);

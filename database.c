@@ -1,6 +1,5 @@
 #include "database.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 void init_database(MusicDatabase* db) {
@@ -49,7 +48,12 @@ void delete_song(MusicDatabase* db, const unsigned int id) {
     db->count--;
 }
 
-void edit_song(const MusicDatabase* db, const unsigned int id) {
+void input_string(char* buf, const size_t size) {
+    fgets(buf, size, stdin);
+    buf[strcspn(buf, "\n")] = 0;
+}
+
+void edit_song(MusicDatabase* db, const unsigned int id) {
     if (id == 0 || id > db->count) {
         printf("Error: Wrong id.\n");
         return;
@@ -69,8 +73,6 @@ void edit_song(const MusicDatabase* db, const unsigned int id) {
     int choice;
     scanf("%d", &choice);
     getchar();
-
-    void input_string(char* buf, size_t size);
 
     switch (choice) {
         case 1:
@@ -103,12 +105,3 @@ void edit_song(const MusicDatabase* db, const unsigned int id) {
     }
     printf("Изменения сохранены.\n");
 }
-
-void input_string(char* buf, const size_t size) {
-    fgets(buf, size, stdin);
-    buf[strcspn(buf, "\n")] = 0;
-}
-
-
-
-
