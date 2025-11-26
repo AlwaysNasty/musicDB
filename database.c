@@ -9,6 +9,15 @@ void init_database(MusicDatabase* db) {
     db->songs = (Song_t*)malloc(db->capacity * sizeof(Song_t));
 }
 
+void free_database(MusicDatabase* db) {
+    if (db == NULL) return;
+
+    free(db->songs);
+    db->songs = NULL;
+    db->count = 0;
+    db->capacity = 0;
+}
+
 void ensure_capacity(MusicDatabase* db) {
     if (db->count >= db->capacity) {
         const int new_capacity = db->capacity * 2;
