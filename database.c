@@ -109,6 +109,26 @@ void input_string(char* buf, const size_t size) {
     buf[strcspn(buf, "\n")] = 0;
 }
 
+void print_song(const Song_t* song) {
+    if (song == NULL) return;
 
+    printf("[ID: %u] %s — %s\n", song->id, song->title, song->author);
+    printf("Жанр: %s\n", song->genre);
+    printf("Год: %u\n", song->year);
+    printf("Длительность: %u сек\n", song->duration_sec);
+    printf("--------------------------------------\n");
+}
 
+void print_all(const MusicDatabase* db) {
+    if (db == NULL || db->songs == 0) {
+        printf("Error. Database is empty!\n");
+        return;
+    }
 
+    printf("\n======== Содержимое фонотеки ========\n\n");
+    for (int i = 0; i < db->count; i++) {
+        print_song(&db->songs[i]);
+    }
+
+    printf("======== Конец списка ========\n");
+}
