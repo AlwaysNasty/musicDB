@@ -1,7 +1,3 @@
-//
-// Created by Admin on 26.11.2025.
-//
-
 #ifndef MUSICDB_DATABASE_H
 #define MUSICDB_DATABASE_H
 
