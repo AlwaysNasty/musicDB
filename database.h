@@ -1,6 +1,6 @@
 #ifndef MUSICDB_DATABASE_H
 #define MUSICDB_DATABASE_H
-
+#include <stdlib.h>
 typedef struct {
     char title[64];
     char author[64];
@@ -25,12 +25,19 @@ void add_song(MusicDatabase* db, Song_t song);
 void delete_song(MusicDatabase* db, unsigned int id);
 void edit_song(const MusicDatabase* db, unsigned int id);
 
+void input_string(char* buf, const size_t size);
 void print_song(const Song_t* song);
 void print_all(const MusicDatabase* db);
 
+int compare_title (const void* a, const void* b);
+int compare_author (const void* a, const void* b);
+int compare_genre (const void* a, const void* b);
 void sort_by_title(MusicDatabase* db);
 void sort_by_author(MusicDatabase* db);
 void sort_by_genre(MusicDatabase* db);
+
+void save_to_file(const MusicDatabase* db, const char* filename);
+void load_from_file(MusicDatabase* db, const char* filename);
 
 void search_songs(const MusicDatabase* db,
                   const char* key1,
