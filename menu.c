@@ -17,9 +17,7 @@ void show_menu() {
     printf("Ваш выбор: ");
 }
 
-// -------------------------------------------------------------
-// Добавление
-// -------------------------------------------------------------
+
 void menu_add_song(MusicDatabase* db) {
     Song_t s;
 
@@ -45,9 +43,6 @@ void menu_add_song(MusicDatabase* db) {
     printf("Песня добавлена!\n");
 }
 
-// -------------------------------------------------------------
-// Удаление
-// -------------------------------------------------------------
 void menu_delete_song(MusicDatabase* db) {
     printf("Введите ID: ");
     unsigned id;
@@ -56,9 +51,6 @@ void menu_delete_song(MusicDatabase* db) {
     delete_song(db, id);
 }
 
-// -------------------------------------------------------------
-// Редактирование
-// -------------------------------------------------------------
 void menu_edit_song(MusicDatabase* db) {
     printf("Введите ID: ");
     unsigned id;
@@ -67,16 +59,10 @@ void menu_edit_song(MusicDatabase* db) {
     edit_song(db, id);
 }
 
-// -------------------------------------------------------------
-// Вывод всей базы
-// -------------------------------------------------------------
 void menu_print_all(const MusicDatabase* db) {
     print_all(db);
 }
 
-// -------------------------------------------------------------
-// Меню сортировок
-// -------------------------------------------------------------
 void menu_sort(MusicDatabase* db) {
     printf("\n----- Сортировка -----\n");
     printf("1 — По названию\n");
@@ -100,9 +86,6 @@ void menu_sort(MusicDatabase* db) {
     printf("Готово.\n");
 }
 
-// -------------------------------------------------------------
-// Сохранение базы
-// -------------------------------------------------------------
 void menu_save_to_file(const MusicDatabase* db) {
     char fname[128];
 
@@ -120,10 +103,6 @@ void menu_load_from_file(MusicDatabase* db) {
 
     load_from_file(db, fname);
 }
-
-// -------------------------------------------------------------
-// Главный цикл меню
-// -------------------------------------------------------------
 
 void menu_find(MusicDatabase* db) {
     char key1[64], key2[64], key3[64];
@@ -157,11 +136,8 @@ void run_menu(MusicDatabase* db) {
             case 6: menu_save_to_file(db); break;
             case 7: menu_find(db); break;
             case 8: menu_load_from_file(db); break;
-            case 0:
-                printf("Выход.\n");
-                return;
-            default:
-                printf("Неверный пункт меню!\n");
+            case 0: printf("Выход.\n"); return;
+            default: printf("Неверный пункт меню!\n");
         }
     }
 }
