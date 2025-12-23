@@ -20,7 +20,7 @@ void free_database(MusicDatabase* db) {
 
 void ensure_capacity(MusicDatabase* db) {
     if (db->count >= db->capacity) {
-        int new_capacity = db->capacity * 2;
+        const int new_capacity = db->capacity * 2;
         Song_t* temp = realloc(db->songs, new_capacity * sizeof(Song_t));
 
         if (!temp) {
@@ -39,7 +39,7 @@ void add_song(MusicDatabase* db, Song_t song) {
     db->songs[db->count++] = song;
 }
 
-void delete_song(MusicDatabase* db, unsigned int id) {
+void delete_song(MusicDatabase* db, const unsigned int id) {
     if (id == 0 || id > db->count) return;
 
     for (int i = id - 1; i < db->count - 1; i++) {
@@ -49,12 +49,7 @@ void delete_song(MusicDatabase* db, unsigned int id) {
     db->count--;
 }
 
-void input_string(char* buf, size_t size) {
-    fgets(buf, size, stdin);
-    buf[strcspn(buf, "\n")] = 0;
-}
-
-void edit_song(const MusicDatabase* db, unsigned int id) {
+void edit_song(const MusicDatabase* db, const unsigned int id) {
     if (id == 0 || id > db->count) {
         printf("Ошибка: неверный ID!\n");
         return;
@@ -109,10 +104,15 @@ void edit_song(const MusicDatabase* db, unsigned int id) {
     printf("Изменения сохранены.\n");
 }
 
+void input_string(char* buf, const size_t size) {
+    fgets(buf, size, stdin);
+    buf[strcspn(buf, "\n")] = 0;
+}
+
 void print_song(const Song_t* song) {
     printf("[ID %u] %s — %s\n", song->id, song->title, song->author);
     printf("Жанр: %s | Год: %u | Длительность: %u сек\n",
-        song->genre, song->year, song->duration_sec);
+           song->genre, song->year, song->duration_sec);
     printf("--------------------------------------\n");
 }
 
@@ -134,21 +134,21 @@ void print_all(const MusicDatabase* db) {
 int compare_title(const void* a, const void* b) {
     return strcmp(((Song_t*)a)->title, ((Song_t*)b)->title);
 }
-void sort_by_title(MusicDatabase* db) {
-    qsort(db->songs, db->count, sizeof(Song_t), compare_title);
-}
-
 int compare_author(const void* a, const void* b) {
     return strcmp(((Song_t*)a)->author, ((Song_t*)b)->author);
-}
-void sort_by_author(MusicDatabase* db) {
-    qsort(db->songs, db->count, sizeof(Song_t), compare_author);
 }
 
 int compare_genre(const void* a, const void* b) {
     return strcmp(((Song_t*)a)->genre, ((Song_t*)b)->genre);
 }
-void sort_by_genre(MusicDatabase* db) {
+void sort_by_title(const MusicDatabase* db) {
+    qsort(db->songs, db->count, sizeof(Song_t), compare_title);
+}
+
+void sort_by_author(const MusicDatabase* db) {
+    qsort(db->songs, db->count, sizeof(Song_t), compare_author);
+}
+void sort_by_genre(const MusicDatabase* db) {
     qsort(db->songs, db->count, sizeof(Song_t), compare_genre);
 }
 
@@ -168,6 +168,42 @@ void save_to_file(const MusicDatabase* db, const char* filename) {
 
     fclose(f);
     printf("База сохранена в файл: %s\n", filename);
+}
+
+void load_from_file(MusicDatabase* db, const char* filename) {
+    FILE* f = fopen(filename, "r");
+    if (!f) {
+        printf("Ошибка: не удалось открыть файл %s!\n", filename);
+        return;
+    }
+
+    char line[256];
+
+    db->count = 0;  // перезаписываем базу
+
+    while (fgets(line, sizeof(line), f)) {
+        Song_t s;
+        char title[64], author[64], genre[64];
+        unsigned int id, year, duration;
+
+        // формат строки:
+        // id;title;author;genre;year;duration
+        if (sscanf(line, "%u;%63[^;];%63[^;];%63[^;];%u;%u",
+                   &id, title, author, genre, &year, &duration) == 6)
+        {
+            strncpy(s.title, title, sizeof(s.title));
+            strncpy(s.author, author, sizeof(s.author));
+            strncpy(s.genre, genre, sizeof(s.genre));
+            s.year = year;
+            s.duration_sec = duration;
+            s.id = db->count + 1;
+
+            add_song(db, s);
+        }
+    }
+
+    fclose(f);
+    printf("База успешно загружена из файла: %s\n", filename);
 }
 
 void search_songs(const MusicDatabase* db,
@@ -220,40 +256,4 @@ void search_songs(const MusicDatabase* db,
     if (!found) printf("Ничего не найдено.\n");
 
     printf("===== Конец поиска =====\n");
-}
-
-void load_from_file(MusicDatabase* db, const char* filename) {
-    FILE* f = fopen(filename, "r");
-    if (!f) {
-        printf("Ошибка: не удалось открыть файл %s!\n", filename);
-        return;
-    }
-
-    char line[256];
-
-    db->count = 0;  // перезаписываем базу
-
-    while (fgets(line, sizeof(line), f)) {
-        Song_t s;
-        char title[64], author[64], genre[64];
-        unsigned int id, year, duration;
-
-        // формат строки:
-        // id;title;author;genre;year;duration
-        if (sscanf(line, "%u;%63[^;];%63[^;];%63[^;];%u;%u",
-                   &id, title, author, genre, &year, &duration) == 6)
-        {
-            strncpy(s.title, title, sizeof(s.title));
-            strncpy(s.author, author, sizeof(s.author));
-            strncpy(s.genre, genre, sizeof(s.genre));
-            s.year = year;
-            s.duration_sec = duration;
-            s.id = db->count + 1;
-
-            add_song(db, s);
-        }
-    }
-
-    fclose(f);
-    printf("База успешно загружена из файла: %s\n", filename);
 }
