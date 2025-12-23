@@ -8,3 +8,7 @@ add_executable(musicDB database.c
         main.c
         menu.h
         menu.c)
+
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
