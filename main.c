@@ -3,7 +3,7 @@
 #include <locale.h>
 
 int main() {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
+    system("chcp 65001>nul");
 
     MusicDatabase db;
     init_database(&db);
