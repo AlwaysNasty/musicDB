@@ -39,6 +39,7 @@ void menu_add_song(MusicDatabase* db) {
     scanf("%u", &s.duration_sec);
     getchar();
 
+    // ReSharper disable once CppSomeObjectMembersMightNotBeInitialized
     add_song(db, s);
     printf("Песня добавлена!\n");
 }
@@ -51,7 +52,7 @@ void menu_delete_song(MusicDatabase* db) {
     delete_song(db, id);
 }
 
-void menu_edit_song(MusicDatabase* db) {
+void menu_edit_song(const MusicDatabase* db) {
     printf("Введите ID: ");
     unsigned id;
     scanf("%u", &id);
@@ -63,7 +64,7 @@ void menu_print_all(const MusicDatabase* db) {
     print_all(db);
 }
 
-void menu_sort(MusicDatabase* db) {
+void menu_sort(const MusicDatabase* db) {
     printf("\n----- Сортировка -----\n");
     printf("1 — По названию\n");
     printf("2 — По автору\n");
@@ -87,24 +88,24 @@ void menu_sort(MusicDatabase* db) {
 }
 
 void menu_save_to_file(const MusicDatabase* db) {
-    char fname[128];
+    char filename[128];
 
     printf("Введите имя файла (например: songs.txt): ");
-    input_string(fname, sizeof(fname));
+    input_string(filename, sizeof(filename));
 
-    save_to_file(db, fname);
+    save_to_file(db, filename);
 }
 
 void menu_load_from_file(MusicDatabase* db) {
-    char fname[128];
+    char filename[128];
 
     printf("Введите имя файла (например songs.txt): ");
-    input_string(fname, sizeof(fname));
+    input_string(filename, sizeof(filename));
 
-    load_from_file(db, fname);
+    load_from_file(db, filename);
 }
 
-void menu_find(MusicDatabase* db) {
+void menu_find(const MusicDatabase* db) {
     char key1[64], key2[64], key3[64];
 
     printf("\n===== Поиск песен =====\n");
