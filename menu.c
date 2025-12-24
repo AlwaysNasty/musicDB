@@ -9,8 +9,8 @@ void show_menu() {
     printf("3 — Редактировать песню\n");
     printf("4 — Показать все песни\n");
     printf("5 — Сортировка\n");
-    printf("6 — Сохранить базу в файл\n");
-    printf("7 — Поиск песен\n");
+    printf("6 — Поиск песен\n");
+    printf("7 — Сохранить базу в файл\n");
     printf("8 — Загрузить базу из файла\n");
     printf("0 — Выход\n");
     printf("==============================\n");
@@ -31,14 +31,6 @@ void menu_add_song(MusicDatabase* db) {
     printf("Жанр: ");
     input_string(s.genre, sizeof(s.genre));
 
-    printf("Год: ");
-    scanf("%u", &s.year);
-    getchar();
-
-    printf("Длительность (сек): ");
-    scanf("%u", &s.duration_sec);
-    getchar();
-
     // ReSharper disable once CppSomeObjectMembersMightNotBeInitialized
     add_song(db, s);
     printf("Песня добавлена!\n");
@@ -46,7 +38,7 @@ void menu_add_song(MusicDatabase* db) {
 
 void menu_delete_song(MusicDatabase* db) {
     printf("Введите ID: ");
-    unsigned id;
+    unsigned int id;
     scanf("%u", &id);
     getchar();
     delete_song(db, id);
@@ -134,8 +126,8 @@ void run_menu(MusicDatabase* db) {
             case 3: menu_edit_song(db); break;
             case 4: menu_print_all(db); break;
             case 5: menu_sort(db); break;
-            case 6: menu_save_to_file(db); break;
-            case 7: menu_find(db); break;
+            case 6: menu_find(db); break;
+            case 7: menu_save_to_file(db); break;
             case 8: menu_load_from_file(db); break;
             case 0: printf("Выход.\n"); return;
             default: printf("Неверный пункт меню!\n");
