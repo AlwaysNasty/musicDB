@@ -1,6 +1,5 @@
 ﻿#include "database.h"
 #include "menu.h"
-#include <locale.h>
 
 int main() {
     system("chcp 65001>nul");
