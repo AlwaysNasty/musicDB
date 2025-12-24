@@ -8,8 +8,6 @@ typedef struct {
     char author[64];
     char genre[64];
     unsigned int id;
-    unsigned int year;
-    unsigned int duration_sec;
 } Song_t;
 
 typedef struct {

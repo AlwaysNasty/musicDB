@@ -40,14 +40,35 @@ void add_song(MusicDatabase* db, Song_t song) {
 }
 
 void delete_song(MusicDatabase* db, const unsigned int id) {
-    if (id == 0 || id > db->count) return;
+        if (db->count == 0) {
+            printf("Ошибка: база пуста!\n");
+            return;
+        }
 
-    for (int i = id - 1; i < db->count - 1; i++) {
-        db->songs[i] = db->songs[i + 1];
+        int found_index = -1;
+        // Ищем индекс песни с заданным ID
+        for (int i = 0; i < db->count; i++) {
+            if (db->songs[i].id == id) {
+                found_index = i;
+                break;
+            }
+        }
+
+        if (found_index == -1) {
+            printf("Ошибка: песня с ID %u не найдена!\n", id);
+            return;
+        }
+
+        // Сдвигаем элементы
+        for (int i = found_index; i < db->count - 1; i++) {
+            db->songs[i] = db->songs[i + 1];
+            // Обновляем ID, чтобы они всегда шли по порядку 1, 2, 3...
+            db->songs[i].id = i + 1;
+        }
+
+        db->count--;
+        printf("Песня с ID %u удалена.\n", id);
     }
-
-    db->count--;
-}
 
 void edit_song(const MusicDatabase* db, const unsigned int id) {
     if (id == 0 || id > db->count) {
@@ -61,8 +82,6 @@ void edit_song(const MusicDatabase* db, const unsigned int id) {
     printf("1 — Название:      %s\n", s->title);
     printf("2 — Автор:         %s\n", s->author);
     printf("3 — Жанр:          %s\n", s->genre);
-    printf("4 — Год:           %u\n", s->year);
-    printf("5 — Длительность:  %u сек\n", s->duration_sec);
     printf("0 — Отмена\n");
 
     printf("Ваш выбор: ");
@@ -83,16 +102,6 @@ void edit_song(const MusicDatabase* db, const unsigned int id) {
             printf("Новый жанр: ");
             input_string(s->genre, sizeof(s->genre));
             break;
-        case 4:
-            printf("Новый год: ");
-            scanf("%u", &s->year);
-            getchar();
-            break;
-        case 5:
-            printf("Новая длительность: ");
-            scanf("%u", &s->duration_sec);
-            getchar();
-            break;
         case 0:
             printf("Отмена.\n");
             return;
@@ -111,9 +120,8 @@ void input_string(char* buf, const size_t size) {
 
 void print_song(const Song_t* song) {
     printf("[ID %u] %s — %s\n", song->id, song->title, song->author);
-    printf("Жанр: %s | Год: %u | Длительность: %u сек\n",
-           song->genre, song->year, song->duration_sec);
-    printf("--------------------------------------\n");
+    printf("Жанр: %s\n",song->genre);
+    printf("---------------------------------\n");
 }
 
 void print_all(const MusicDatabase* db) {
@@ -134,6 +142,7 @@ void print_all(const MusicDatabase* db) {
 int compare_title(const void* a, const void* b) {
     return strcmp(((Song_t*)a)->title, ((Song_t*)b)->title);
 }
+
 int compare_author(const void* a, const void* b) {
     return strcmp(((Song_t*)a)->author, ((Song_t*)b)->author);
 }
@@ -141,6 +150,7 @@ int compare_author(const void* a, const void* b) {
 int compare_genre(const void* a, const void* b) {
     return strcmp(((Song_t*)a)->genre, ((Song_t*)b)->genre);
 }
+
 void sort_by_title(const MusicDatabase* db) {
     qsort(db->songs, db->count, sizeof(Song_t), compare_title);
 }
@@ -156,14 +166,15 @@ void sort_by_genre(const MusicDatabase* db) {
 void save_to_file(const MusicDatabase* db, const char* filename) {
     FILE* f = fopen(filename, "w");
     if (!f) {
-        printf("Ошибка: не удалось открыть файл!\n");
+        printf("Ошибка: не удалось открыть файл для записи!\n");
         return;
     }
 
     for (int i = 0; i < db->count; i++) {
         const Song_t* s = &db->songs[i];
-        fprintf(f, "%u;%s;%s;%s;%u;%u\n",
-                s->id, s->title, s->author, s->genre, s->year, s->duration_sec);
+        // Записываем ID, Название, Автор, Жанр
+        fprintf(f, "%u;%s;%s;%s\n",
+                s->id, s->title, s->author, s->genre);
     }
 
     fclose(f);
@@ -177,33 +188,40 @@ void load_from_file(MusicDatabase* db, const char* filename) {
         return;
     }
 
+    // Очищаем текущую базу перед загрузкой, чтобы не было утечек
+    free(db->songs);
+    init_database(db);
+
     char line[256];
-
-    db->count = 0;  // перезаписываем базу
-
     while (fgets(line, sizeof(line), f)) {
+        // Убираем \n в конце строки, если он есть
+        line[strcspn(line, "\r\n")] = 0;
+        
+        if (strlen(line) == 0) continue;
+
         Song_t s;
         char title[64], author[64], genre[64];
-        unsigned int id, year, duration;
+        unsigned int id;
 
-        // формат строки:
-        // id;title;author;genre;year;duration
-        if (sscanf(line, "%u;%63[^;];%63[^;];%63[^;];%u;%u",
-                   &id, title, author, genre, &year, &duration) == 6)
+        // Читаем 4 поля
+        if (sscanf(line, "%u;%63[^;];%63[^;];%63[^;]",
+                   &id, title, author, genre) == 4)
         {
-            strncpy(s.title, title, sizeof(s.title));
-            strncpy(s.author, author, sizeof(s.author));
-            strncpy(s.genre, genre, sizeof(s.genre));
-            s.year = year;
-            s.duration_sec = duration;
-            s.id = db->count + 1;
+            strncpy(s.title, title, sizeof(s.title) - 1);
+            s.title[sizeof(s.title) - 1] = '\0';
+            
+            strncpy(s.author, author, sizeof(s.author) - 1);
+            s.author[sizeof(s.author) - 1] = '\0';
+            
+            strncpy(s.genre, genre, sizeof(s.genre) - 1);
+            s.genre[sizeof(s.genre) - 1] = '\0';
 
             add_song(db, s);
         }
     }
 
     fclose(f);
-    printf("База успешно загружена из файла: %s\n", filename);
+    printf("База успешно загружена из файла: %s (загружено %d песен)\n", filename, db->count);
 }
 
 void search_songs(const MusicDatabase* db,
@@ -225,7 +243,7 @@ void search_songs(const MusicDatabase* db,
 
         int ok = 1;
 
-        // Проверки только если ключи не пустые
+        // если ключи не пустые
         if (key1 && strlen(key1) > 0) {
             if (!strstr(s->title, key1) &&
                 !strstr(s->author, key1) &&
