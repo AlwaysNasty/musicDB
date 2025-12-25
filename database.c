@@ -224,6 +224,26 @@ void load_from_file(MusicDatabase* db, const char* filename) {
     printf("База успешно загружена из файла: %s (загружено %d песен)\n", filename, db->count);
 }
 
+// Вспомогательная функция для поиска целого слова в строке
+int contains_whole_word(const char* source, const char* word) {
+    if (!word || strlen(word) == 0) return 1; // Пустой ключ считаем совпадением (как раньше)
+
+    char temp[128];
+    strncpy(temp, source, sizeof(temp) - 1);
+    temp[sizeof(temp) - 1] = '\0';
+
+    const char* delimiters = " ,.-!?/()\""; // Символы, разделяющие слова
+    const char* token = strtok(temp, delimiters);
+
+    while (token != NULL) {
+        if (strcmp(token, word) == 0) {
+            return 1; // Слово найдено
+        }
+        token = strtok(NULL, delimiters);
+    }
+    return 0; // Слово не найдено
+}
+
 void search_songs(const MusicDatabase* db,
                   const char* key1,
                   const char* key2,
@@ -234,34 +254,35 @@ void search_songs(const MusicDatabase* db,
         return;
     }
 
-    printf("\n===== Результаты поиска =====\n\n");
+    printf("\n===== Результаты поиска (по целым словам) =====\n\n");
 
     int found = 0;
 
     for (int i = 0; i < db->count; i++) {
         const Song_t* s = &db->songs[i];
-
         int ok = 1;
 
-        // если ключи не пустые
+        // Проверяем ключ №1
         if (key1 && strlen(key1) > 0) {
-            if (!strstr(s->title, key1) &&
-                !strstr(s->author, key1) &&
-                !strstr(s->genre, key1))
+            if (!contains_whole_word(s->title, key1) &&
+                !contains_whole_word(s->author, key1) &&
+                !contains_whole_word(s->genre, key1))
                 ok = 0;
         }
 
-        if (key2 && strlen(key2) > 0) {
-            if (!strstr(s->title, key2) &&
-                !strstr(s->author, key2) &&
-                !strstr(s->genre, key2))
+        // Проверяем ключ №2
+        if (ok && key2 && strlen(key2) > 0) {
+            if (!contains_whole_word(s->title, key2) &&
+                !contains_whole_word(s->author, key2) &&
+                !contains_whole_word(s->genre, key2))
                 ok = 0;
         }
 
-        if (key3 && strlen(key3) > 0) {
-            if (!strstr(s->title, key3) &&
-                !strstr(s->author, key3) &&
-                !strstr(s->genre, key3))
+        // Проверяем ключ №3
+        if (ok && key3 && strlen(key3) > 0) {
+            if (!contains_whole_word(s->title, key3) &&
+                !contains_whole_word(s->author, key3) &&
+                !contains_whole_word(s->genre, key3))
                 ok = 0;
         }
 
@@ -272,6 +293,5 @@ void search_songs(const MusicDatabase* db,
     }
 
     if (!found) printf("Ничего не найдено.\n");
-
     printf("===== Конец поиска =====\n");
 }

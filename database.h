@@ -39,6 +39,7 @@ void sort_by_genre(const MusicDatabase* db);
 void save_to_file(const MusicDatabase* db, const char* filename);
 void load_from_file(MusicDatabase* db, const char* filename);
 
+int contains_whole_word(const char* source, const char* word);
 void search_songs(const MusicDatabase* db,
                   const char* key1,
                   const char* key2,
